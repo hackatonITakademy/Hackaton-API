@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Report;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ReportController extends Controller
 {
@@ -13,7 +15,8 @@ class ReportController extends Controller
      */
     public function index()
     {
-        //
+        $reports = Report::all();
+        return new Response($reports->toArray(), 200);
     }
 
     /**
@@ -34,7 +37,22 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $report = Report::where('git_repository', '=', $request->git_repository)->first();
+
+        if ($report instanceof Report) {
+            $this->update($request, $report);
+        }
+
+        $report = new Report();
+
+        if ($request->user_id !== null) {
+            $report->user_id = $request->user_id;
+        }
+        $report->git_repository = $request->git_repository;
+
+        $report->save();
+
+        return new Response($report->toArray(), 201);
     }
 
     /**
@@ -68,7 +86,9 @@ class ReportController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // todo
+
+        dd('ok');
     }
 
     /**

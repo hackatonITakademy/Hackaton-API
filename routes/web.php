@@ -21,8 +21,13 @@ Route::group(
         'prefix' => '/api'
     ],
     function() {
+
+    // Routes for donations api
     Route::Resource('donation', 'DonationController');
     Route::get('donation/user/{user}', 'DonationController@getByUser');
+
+    // Routes for reports api
+    Route::Resource('report', 'ReportController');
 });
 Auth::routes();
 
