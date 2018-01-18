@@ -14,3 +14,16 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::group(
+    [
+        'middleware' => ['web', 'api'],
+        'prefix' => '/api'
+    ],
+    function() {
+    Route::Resource('donation', 'DonationController');
+    Route::get('donation/user/{user}', 'DonationController@getByUser');
+});
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
