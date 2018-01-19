@@ -40,6 +40,8 @@ class ReportController extends Controller
     {
         $report = Report::where('git_repository', '=', $request->git_repository)->first();
 
+        // todo check if url exist, check if domain name is github
+
         if ($report instanceof Report) {
             return $this->update($request, $report);
         }
