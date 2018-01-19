@@ -29,6 +29,9 @@ Route::group(
     // Routes for reports api
     Route::Resource('report', 'ReportController');
     Route::get('report/user/{user}', 'ReportController@getByUser');
+
+    // Route for token
+    Route::get('token', 'TokenController@index');
 });
 Auth::routes();
 
