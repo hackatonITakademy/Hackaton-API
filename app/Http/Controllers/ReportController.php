@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Report;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -40,17 +41,20 @@ class ReportController extends Controller
         $report = Report::where('git_repository', '=', $request->git_repository)->first();
 
         if ($report instanceof Report) {
-            $this->update($request, $report);
+            return $this->update($request, $report);
         }
 
         $report = new Report();
 
-        if ($request->user_id !== null) {
-            $report->user_id = $request->user_id;
-        }
         $report->git_repository = $request->git_repository;
 
+        // todo create the report
+
         $report->save();
+
+        if ($request->user_id !== null) {
+            $report->users()->attach($request->user_id);
+        }
 
         return new Response($report->toArray(), 201);
     }
@@ -86,9 +90,15 @@ class ReportController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // todo
+        $report = Report::find($id)->first();
 
-        dd('ok');
+        if ($request->user_id !== null) {
+            $report->users()->attach($request->user_id);
+        }
+
+        // todo create the report
+
+        return new Response($report->toArray(), 201);
     }
 
     /**
@@ -100,5 +110,21 @@ class ReportController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * @param $id
+     *
+     * @return Response
+     */
+    public function getByUser($id)
+    {
+        $users = User::find($id)->first();
+        $reports = array();
+        foreach ($users->reports as $report) {
+            $reports[] = $report->toArray();
+        }
+
+        return new Response($reports, 200);
     }
 }

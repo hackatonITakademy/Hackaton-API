@@ -101,9 +101,9 @@ class DonationController extends Controller
      *
      * @return Response
      */
-    public function getByUser($userId)
+    public function getByUser($id)
     {
-        $donations = DB::table('donations')->where('user_id', '=', $userId)->get();
+        $donations = DB::table('donations')->where('user_id', '=', $id)->get();
         return new Response($donations->toArray(), 200);
     }
 }

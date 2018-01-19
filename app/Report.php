@@ -15,9 +15,13 @@ class Report extends Model
         return [
             'id' => $this->id,
             'git_repository' => $this->git_repository,
-            'user_id' => $this->user_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany('App\User');
     }
 }

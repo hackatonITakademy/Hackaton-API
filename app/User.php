@@ -34,6 +34,6 @@ class User extends Authenticatable
 
     public function reports()
     {
-        return $this->hasMany('App\Report');
+        return $this->belongsToMany('App\Report');
     }
 }
