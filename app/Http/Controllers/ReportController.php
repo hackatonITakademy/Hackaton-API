@@ -99,6 +99,7 @@ class ReportController extends Controller
         }
 
         // todo create the report
+        // $report->filename('test')
 
         return new Response($report->toArray(), 201);
     }
