@@ -17,16 +17,7 @@ class DonationController extends Controller
     public function index()
     {
         $donations = Donation::all();
-        return new Response($donations->toArray(), 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
+        return new Response($donations->toArray(), Response::HTTP_OK);
     }
 
     /**
@@ -38,7 +29,24 @@ class DonationController extends Controller
     public function store(Request $request)
     {
         if ($request->user_id === null) {
-            return new Response(json_encode(['error' => 'You have to be logged for donate.']), 403);
+            return new Response(array(
+                'message' => 'You have to be logged for donate.',
+                'status_code' => Response::HTTP_FORBIDDEN,
+            ), Response::HTTP_FORBIDDEN);
+        }
+
+        if (!isset($request->amount) || $request->amount === null) {
+            return new Response(array(
+               'message' => 'The amount can\'t be empty',
+               'status_code' => Response::HTTP_UNPROCESSABLE_ENTITY,
+            ), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        if (!isset($request->currency_id) || $request->currency_id === null) {
+            return new Response(array(
+                'message' => 'The currency can\'t be empty',
+                'status_code' => Response::HTTP_UNPROCESSABLE_ENTITY,
+            ), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $donation = new Donation();
@@ -52,52 +60,7 @@ class DonationController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    /**
-     * @param $userId
+     * @param $id
      *
      * @return Response
      */
