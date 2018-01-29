@@ -11,6 +11,8 @@
 |
 */
 
+use App\Http\Middleware\checkUserId;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -23,16 +25,25 @@ Route::group(
     function() {
 
     // Routes for donations api
-    Route::Resource('donation', 'DonationController');
-    Route::get('donation/user/{user}', 'DonationController@getByUser');
+    Route::Post('donation', 'DonationController@store')->middleware(checkUserId::class);
+    Route::Get('donation', 'DonationController@index');
+    Route::Get('donation/user/{user}', 'DonationController@getByUser')->middleware('user-not-null');
 
     // Routes for reports api
-    Route::Resource('report', 'ReportController');
-    Route::get('report/user/{user}', 'ReportController@getByUser');
+    Route::Get('report/user/{user}', 'ReportController@getByUser');
+
+    // Route for Currency
+    Route::Get('currency', 'CurrencyController@index');
+    Route::Resource('currency', 'CurrencyController');
 
     // Route for token
     Route::get('token', 'TokenController@index');
 });
+
+
+
+
+
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');

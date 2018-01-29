@@ -28,13 +28,6 @@ class DonationController extends Controller
      */
     public function store(Request $request)
     {
-        if ($request->user_id === null) {
-            return new Response(array(
-                'message' => 'You have to be logged for donate.',
-                'status_code' => Response::HTTP_FORBIDDEN,
-            ), Response::HTTP_FORBIDDEN);
-        }
-
         if (!isset($request->amount) || $request->amount === null) {
             return new Response(array(
                'message' => 'The amount can\'t be empty',
