@@ -38,8 +38,11 @@ Route::group(
     Route::Get('currency', 'CurrencyController@index');
     Route::Resource('currency', 'CurrencyController');
 
-    // Route for token
+    // Route for Token
     Route::get('token', 'TokenController@index');
+
+    // Route for User
+    Route::post('user', 'UserController@store');
 });
 
 Auth::routes();

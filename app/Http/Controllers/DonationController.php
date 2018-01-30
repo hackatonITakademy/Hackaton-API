@@ -6,6 +6,7 @@ use App\Donation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Validator;
 
 class DonationController extends Controller
 {
@@ -28,18 +29,14 @@ class DonationController extends Controller
      */
     public function store(Request $request)
     {
-        if (!isset($request->amount) || $request->amount === null) {
-            return new Response(array(
-               'message' => 'The amount can\'t be empty',
-               'status_code' => Response::HTTP_UNPROCESSABLE_ENTITY,
-            ), Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer',
+            'amount' => 'required|numeric',
+            'currency_id' => 'required|integer',
+        ]);
 
-        if (!isset($request->currency_id) || $request->currency_id === null) {
-            return new Response(array(
-                'message' => 'The currency can\'t be empty',
-                'status_code' => Response::HTTP_UNPROCESSABLE_ENTITY,
-            ), Response::HTTP_UNPROCESSABLE_ENTITY);
+        if ($validator->fails()) {
+            return new Response($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $donation = new Donation();
@@ -49,7 +46,7 @@ class DonationController extends Controller
 
         $donation->save();
 
-        return new Response($donation->toArray(), 201);
+        return new Response($donation->toArray(), Response::HTTP_CREATED);
     }
 
     /**
