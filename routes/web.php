@@ -25,12 +25,14 @@ Route::group(
     function() {
 
     // Routes for donations api
-    Route::Post('donation', 'DonationController@store')->middleware(checkUserId::class);
     Route::Get('donation', 'DonationController@index');
-    Route::Get('donation/user/{user}', 'DonationController@getByUser')->middleware('user-not-null');
+    Route::Get('donation/user/{user}', 'DonationController@getByUser')->middleware(checkUserId::class);
+    Route::Post('donation', 'DonationController@store')->middleware(checkUserId::class);
 
     // Routes for reports api
-    Route::Get('report/user/{user}', 'ReportController@getByUser');
+    Route::Get('report', 'ReportController@index');
+    Route::Get('report/user/{user}', 'ReportController@getByUser')->middleware(checkUserId::class);
+    Route::Post('report', 'ReportController@store');
 
     // Route for Currency
     Route::Get('currency', 'CurrencyController@index');
@@ -39,10 +41,6 @@ Route::group(
     // Route for token
     Route::get('token', 'TokenController@index');
 });
-
-
-
-
 
 Auth::routes();
 
