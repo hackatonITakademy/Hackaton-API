@@ -6,6 +6,7 @@ use App\Report;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Validator;
 
 class ReportController extends Controller
 {
@@ -17,7 +18,7 @@ class ReportController extends Controller
     public function index()
     {
         $reports = Report::all();
-        return new Response($reports->toArray(), 200);
+        return new Response($reports->toArray(), Response::HTTP_OK);
     }
 
     /**
@@ -28,6 +29,15 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'git_repository' => 'max:191|url',
+            'user_id' => 'integer|nullable',
+        ]);
+
+        if ($validator->fails()) {
+            return new Response($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $report = Report::where('git_repository', '=', $request->git_repository)->first();
 
         // todo check if url exist, check if domain name is github
@@ -48,7 +58,7 @@ class ReportController extends Controller
             $report->users()->attach($request->user_id);
         }
 
-        return new Response($report->toArray(), 201);
+        return new Response($report->toArray(), Response::HTTP_CREATED);
     }
 
     /**
@@ -69,7 +79,7 @@ class ReportController extends Controller
         // todo create the report
         // $report->filename('test')
 
-        return new Response($report->toArray(), 201);
+        return new Response($report->toArray(), Response::HTTP_CREATED);
     }
 
     /**
@@ -85,6 +95,6 @@ class ReportController extends Controller
             $reports[] = $report->toArray();
         }
 
-        return new Response($reports, 200);
+        return new Response($reports, Response::HTTP_OK);
     }
 }
