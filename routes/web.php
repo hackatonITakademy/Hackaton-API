@@ -43,6 +43,8 @@ Route::group(
 
     // Route for User
     Route::post('user', 'UserController@store');
+    Route::post('user/login', 'UserController@login');
+    Route::post('user/logout', 'UserController@logout');
 });
 
 Auth::routes();
