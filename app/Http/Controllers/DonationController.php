@@ -30,7 +30,6 @@ class DonationController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|integer',
             'amount' => 'required|numeric',
             'currency_id' => 'required|integer',
         ]);
@@ -41,7 +40,7 @@ class DonationController extends Controller
 
         $donation = new Donation();
         $donation->amount = $request->amount;
-        $donation->user_id = $request->user_id;
+        $donation->user_id = $request->user()->id;
         $donation->currency_id = $request->currency_id;
 
         $donation->save();
@@ -50,13 +49,14 @@ class DonationController extends Controller
     }
 
     /**
-     * @param $id
+     * @param Request $request
      *
      * @return Response
      */
-    public function getByUser($id)
+    public function getByUser(Request $request)
     {
-        $donations = DB::table('donations')->where('user_id', '=', $id)->get();
-        return new Response($donations->toArray(), 200);
+        $user = $request->user();
+        $donations = DB::table('donations')->where('user_id', '=', $user->id)->get();
+        return new Response($donations->toArray(), Response::HTTP_OK);
     }
 }
