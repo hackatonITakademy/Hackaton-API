@@ -23,7 +23,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::Post('donation', 'DonationController@store');
 
     // Route for report by user
-    Route::Get('report/user', 'ReportController@getByUser')->middleware(checkUserId::class);
+    Route::Get('report/user', 'ReportController@getByUser');
 });
 
 

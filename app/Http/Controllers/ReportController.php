@@ -89,7 +89,7 @@ class ReportController extends Controller
      */
     public function getByUser(Request $request)
     {
-        $user = $request->user()->id;
+        $user = $request->user();
         $reports = array();
         foreach ($user->reports as $report) {
             $reports[] = $report->toArray();
