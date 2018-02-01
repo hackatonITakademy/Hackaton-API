@@ -54,8 +54,8 @@ class ReportController extends Controller
 
         $report->save();
 
-        if ($request->user_id !== null) {
-            $report->users()->attach($request->user_id);
+        if ($request->user_()->id !== null) {
+            $report->users()->attach($request->user()->id);
         }
 
         return new Response($report->toArray(), Response::HTTP_CREATED);
@@ -72,8 +72,8 @@ class ReportController extends Controller
     {
         $report = Report::find($id)->first();
 
-        if ($request->user_id !== null) {
-            $report->users()->attach($request->user_id);
+        if ($request->user()->id !== null) {
+            $report->users()->attach($request->user()->id);
         }
 
         // todo create the report
@@ -83,15 +83,15 @@ class ReportController extends Controller
     }
 
     /**
-     * @param $id
+     * @param Request $request
      *
      * @return Response
      */
-    public function getByUser($id)
+    public function getByUser(Request $request)
     {
-        $users = User::find($id)->first();
+        $user = $request->user()->id;
         $reports = array();
-        foreach ($users->reports as $report) {
+        foreach ($user->reports as $report) {
             $reports[] = $report->toArray();
         }
 
