@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessReport;
 use App\Report;
 use App\User;
 use Illuminate\Http\Request;
@@ -49,12 +50,19 @@ class ReportController extends Controller
         $report = new Report();
 
         $report->git_repository = $request->git_repository;
-
+//
+//        try {
+//            ProcessReport::dispatch($report);
+//        } catch (Exception $e) {
+//            dd($e->getMessage());
+//        }
+//        \Storage::disk('local')->put('file.txt', 'Content idk lol mdr');
         // todo create the report
+        ProcessReport::dispatch($report);
 
         $report->save();
 
-        if ($request->user_()->id !== null) {
+        if ($request->user()->id !== null) {
             $report->users()->attach($request->user()->id);
         }
 
@@ -72,10 +80,12 @@ class ReportController extends Controller
     {
         $report = Report::find($id)->first();
 
-        if ($request->user()->id !== null) {
+
+        if ($request->user() !== null) {
             $report->users()->attach($request->user()->id);
         }
 
+        ProcessReport::dispatch($report)->delay(now()->addSeconds(10));
         // todo create the report
         // $report->filename('test')
 

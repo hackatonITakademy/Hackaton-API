@@ -26,8 +26,6 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::Get('report/user', 'ReportController@getByUser');
 });
 
-
-
 // Routes for reports api
 Route::Get('report', 'ReportController@index');
 Route::Post('report', 'ReportController@store');
