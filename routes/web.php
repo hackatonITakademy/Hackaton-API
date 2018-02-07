@@ -34,3 +34,8 @@ Route::get('/home', 'HomeController@index')->name('home');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/test', function(){
+   $service = new \App\Http\Service\Treatment();
+   $service->gitClone("https://github.com/hackatonITakademy/Hackaton-API.git");
+});
