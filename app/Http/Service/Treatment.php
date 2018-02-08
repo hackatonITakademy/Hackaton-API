@@ -8,10 +8,11 @@ use Symfony\Component\Process\Process;
 class Treatment
 {
     const DIR_NAME = "scan";
+    const DIR_FILE = "files";
 
     private function getPathStorage()
     {
-        return \Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix().self::DIR_NAME;
+        return \Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix() . self::DIR_NAME;
     }
 
     public function gitClone($url){
@@ -28,16 +29,96 @@ class Treatment
             return new Response(["error" => "Git repository"], Response::HTTP_NOT_FOUND);
         }
 
-        $this->phpstan();
+        $this->phpcs();
 
     }
 
-    public function phpstan()
+
+    public function phpcs()
     {
-        $process = new Process('/var/www/api.hackaton/vendor/bin/phpstan analyse '.$this->getPathStorage());
+
+        $rules =   ["PEAR.ControlStructures.MultiLineCondition.NewlineBeforeOpenBrace",
+            "PEAR.NamingConventions.ValidFunctionName.NotCamelCaps",
+            "PEAR.Commenting.FunctionComment.WrongStyle",
+            "PEAR.Commenting.FileComment.Missing",
+            "PEAR.Commenting.ClassComment.Missing",
+            "PEAR.Classes.ClassDeclaration.OpenBraceNewLine",
+            "Generic.WhiteSpace.DisallowTabIndent.TabsUsed",
+            "PEAR.WhiteSpace.ScopeIndent.IncorrectExact",
+            "PEAR.WhiteSpace.ScopeIndent.Incorrect",
+            "Generic.Functions.FunctionCallArgumentSpacing.NoSpaceAfterComma",
+            "PEAR.Functions.FunctionDeclaration.BraceOnSameLine",
+            "PEAR.Commenting.FunctionComment.Missing",
+            "PEAR.ControlStructures.ControlSignature.Found",
+            "PEAR.ControlStructures.MultiLineCondition.SpaceBeforeOpenBrace",
+            "PEAR.WhiteSpace.ScopeClosingBrace.Line",
+            "Generic.WhiteSpace.DisallowTabIndent.NonIndentTabsUsed",
+            "Generic.Files.LineEndings.InvalidEOLChar",
+            "PEAR.Functions.FunctionCallSignature.SpaceBeforeOpenBracket",
+            "Generic.Commenting.DocComment.TagValueIndent",
+            "Generic.Commenting.DocComment.NonParamGroup",
+            "PEAR.Commenting.FunctionComment.MissingParamComment",
+            "PEAR.WhiteSpace.ScopeClosingBrace.BreakIndent",
+            "Generic.Commenting.DocComment.ShortNotCapital",
+            "PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps",
+            "PEAR.Functions.FunctionCallSignature.SpaceAfterCloseBracket"
+        ];
+
+
+        $process = new Process('/var/www/api.hackaton/vendor/bin/phpcs --report=json --extensions=php --severity=5 '.$this->getPathStorage());
         $process->run();
 
-        dd($process->getOutput());
+
+        $tabResults = json_decode($process->getOutput())->files;
+
+        $tabFinal = $tabResults;
+        $totalErrors = 0;
+        $totalFixable = 0;
+
+        $fileOutPut = "<h1>Vérification des erreurs sur le projet</h1>";
+
+        foreach ($tabResults as $e => $fichier){
+
+
+            $cpt = 0;
+            $errors = "";
+            foreach($fichier->messages as $f => $message){
+
+                if($message->type == "WARNING" || in_array($message->source, $rules)){
+                    unset($tabFinal->{$e}->{'messages'}[$f]);
+                }
+                else
+                {
+                    $cpt++;
+                    $errors .= "<li> Ligne ".$message->line.": ".$message->message."</li>";
+                }
+                if($message->fixable == true){
+                    $totalFixable++;
+                }
+            }
+            unset($tabFinal->{$e}->warnings);
+            $tabFinal->{$e}->errors = $cpt;
+
+            if($tabFinal->{$e}->errors == 0)
+            {
+                unset($tabFinal->{$e});
+            }
+            else
+            {
+                $fileOutPut .= "<hr>"."Fichier : ".$e."<hr>";
+                $fileOutPut .= "<ul>".$errors."</ul>";
+            }
+
+            $totalErrors += $cpt;
+
+        }
+        $fileOutPut .= "<h2>".$totalFixable." erreur(s) corrigeable(s) sur un total de ".$totalErrors." erreur(s)</h2>";
+
+        \Storage::makeDirectory(self::DIR_FILE);
+        $filename = sha1(microtime()).".html";
+
+        \Storage::put(self::DIR_FILE."/".$filename, $fileOutPut);
+        return $filename;
 
     }
 
