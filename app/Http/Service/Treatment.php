@@ -114,10 +114,40 @@ class Treatment
         }
         $fileOutPut .= "<h2>".$totalFixable." erreur(s) corrigeable(s) sur un total de ".$totalErrors." erreur(s)</h2>";
 
+        $this->phpParaLint($fileOutPut);
+
+    }
+
+    public function phpParaLint($content) //TODO: composer require jakub-onderka/php-parallel-lint
+    {
+
+        $process = new Process('/var/www/api.hackaton/vendor/bin/parallel-lint -e php --json '.$this->getPathStorage());
+
+        $process->run();
+
+        $fileOutput = $content . "<br><br>";
+        $tabResults = json_decode($process->getOutput())->results;
+        $totalErrors = 0;
+
+        if(count(json_decode($process->getOutput())->results->errors) == 0){
+            $fileOutput .=  "<h1>Félicitation, aucun problème de syntaxe détecté</h1>";
+        }
+        else
+        {
+            $fileOutput .=  "<h1>Problèmes de syntaxe</h1><hr><ul>";
+            foreach($tabResults->errors as $f => $message){
+                $fileOutput .= "<li> Ligne ".$message->line.": ".$message->message."</li>";
+                $totalErrors ++;
+
+            }
+            $fileOutput .= "</ul>";
+        }
+
         \Storage::makeDirectory(self::DIR_FILE);
         $filename = sha1(microtime()).".html";
 
-        \Storage::put(self::DIR_FILE."/".$filename, $fileOutPut);
+        \Storage::put(self::DIR_FILE."/".$filename, $fileOutput);
+
         return $filename;
 
     }
