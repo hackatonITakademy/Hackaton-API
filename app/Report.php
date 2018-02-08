@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Report extends Model
 {
     protected $fillable = [
-        'git_repository'
+        'git_repository',
+        'filename'
     ];
 
     public function toArray()

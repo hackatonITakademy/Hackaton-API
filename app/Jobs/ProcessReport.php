@@ -2,7 +2,9 @@
 
 namespace App\Jobs;
 
+use App\Http\Service\Treatment;
 use App\Report;
+use http\Env\Request;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -13,7 +15,7 @@ class ProcessReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $report;
+    protected $data;
 
     /**
      * Create a new job instance.
@@ -22,9 +24,9 @@ class ProcessReport implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Report $report)
+    public function __construct($data)
     {
-        $this->report = $report;
+        $this->data = $data;
     }
 
     /**
@@ -34,6 +36,22 @@ class ProcessReport implements ShouldQueue
      */
     public function handle()
     {
-        \Storage::disk('local')->put('fil30secze.txt', 'Content idk lol mdr');
+        $treatment = new Treatment();
+        $filename = $treatment->gitClone($this->data['git_repository']);
+
+        var_dump($this->data);
+        if ($this->data['action'] == 'create') {
+//            $report = new Report();
+//            $report->git_repository = $this->data['git_repository'];
+//            $report->filename = $filename;
+//
+//            $report->save();
+        } else {
+            $report = $this->data['report'];
+        }
+
+        if (isset($data['user_id']) && !empty($data['user_id'])) {
+            $report->users()->attach($data['user_id']);
+        }
     }
 }

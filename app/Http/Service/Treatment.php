@@ -29,7 +29,7 @@ class Treatment
             return new Response(["error" => "Git repository"], Response::HTTP_NOT_FOUND);
         }
 
-        $this->phpcs();
+        return $this->phpcs();
 
     }
 
