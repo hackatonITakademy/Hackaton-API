@@ -70,6 +70,9 @@ class Treatment
         $process = new Process('/var/www/api.hackaton/vendor/bin/phpcs --report=json --extensions=php --severity=5 '.$this->getPathStorage());
         $process->run();
 
+        if (!isset(json_decode($process->getOutput())->files)) {
+            return new Response();
+        }
 
         $tabResults = json_decode($process->getOutput())->files;
 
