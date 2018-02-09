@@ -58,11 +58,11 @@ class ProcessReport implements ShouldQueue
             $report->users()->attach($data['user_id']);
         }
 
-//        Mail::send('emails.reminder', $filename, function ($m) {
-//            $m->from('hello@app.com', 'Your Application');
-//
-//            $m->to($this->data['email'])->subject('Your Reminder!');
-//            $m>attach(\Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix() . Treatment::DIR_FILE . '/' . $filename);
-//        });
+        Mail::send('welcome', ['filename' => $filename], function ($m) use ($filename) {
+            $m->from('groupe3@asr.lan', 'Your Application');
+
+            $m->to('groupe3@asr.lan')->subject('Your Reminder!');
+            $m->attach(\Storage::disk('local')->getDriver()->getAdapter()->getPathPrefix() . Treatment::DIR_FILE . '/' . $filename);
+        });
     }
 }
