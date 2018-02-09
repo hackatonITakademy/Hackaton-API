@@ -114,6 +114,14 @@ class Treatment
         }
         $fileOutPut .= "<h2>".$totalFixable." erreur(s) corrigeable(s) sur un total de ".$totalErrors." erreur(s)</h2>";
 
+        \Storage::makeDirectory(self::DIR_FILE);
+        $filename = sha1(microtime()).".html";
+
+        \Storage::put(self::DIR_FILE."/".$filename, $fileOutPut);
+
+        return $filename;
+
+        return $this->phpParaLint($fileOutPut);
         $this->phpParaLint($fileOutPut);
 
     }
@@ -148,8 +156,8 @@ class Treatment
 
         \Storage::put(self::DIR_FILE."/".$filename, $fileOutput);
 
+//        dd($fileOutput);
         return $filename;
-
     }
 
 }

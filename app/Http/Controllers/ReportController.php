@@ -47,23 +47,20 @@ class ReportController extends Controller
             return $this->update($request, $report);
         }
 
-//        $report = new Report();
-
-//        $report->git_repository = $request->git_repository;
-        $data = array('git_repository' => $request->git_repository, 'email' => $request->email, 'action' => 'create');
-//
-//        try {
-//            ProcessReport::dispatch($report);
-//        } catch (Exception $e) {
-//            dd($e->getMessage());
-//        }
-//        \Storage::disk('local')->put('file.txt', 'Content idk lol mdr');
-        // todo create the report && recup the mail via $request->email
-//        $treatment = new Treatment();
-//        $reportFilename = $treatment->gitClone($request->git_repository);
-//        $report->filename = $reportFilename;
-
-        // $report->save();
+        if ($request->user() !== null) {
+            $data = array(
+                'git_repository' => $request->git_repository,
+                'email' => $request->email,
+                'action' => 'create',
+                'user_id' => $report->users()->id
+            );
+        } else {
+            $data = array(
+                'git_repository' => $request->git_repository,
+                'email' => $request->email,
+                'action' => 'create',
+            );
+        }
 
         if ($request->user() !== null) {
             $data['user_id'] = $request->user()->id;
@@ -85,31 +82,24 @@ class ReportController extends Controller
     {
         $report = Report::find($id)->first();
 
-        $data = array('git_repository' => $report->git_repository, 'email' => $request->email, 'action' => 'update');
-
         if ($request->user() !== null) {
-//            $data = array(
-//                'git_repository' => $report->git_repository,
-//                'email' => $request->email,
-//                'action' => 'update',
-//                'report' => $report,
-//                'user_id' => $report->users()->id
-//                );
-//            $data['user_id'] = $report->users()->id;
+            $data = array(
+                'git_repository' => $report->git_repository,
+                'email' => $request->email,
+                'action' => 'update',
+                'report' => $report,
+                'user_id' => $report->users()->id
+                );
         } else {
-//            $data = array(
-//                'git_repository' => $report->git_repository,
-//                'email' => $request->email,
-//                'action' => 'update',
-//                'report' => $report
-//            );
+            $data = array(
+                'git_repository' => $report->git_repository,
+                'email' => $request->email,
+                'action' => 'update',
+                'report' => $report
+            );
         }
-//        $data['report'] = $report;
 
-//        dd($data);
         ProcessReport::dispatch($data);
-        // todo create the report
-        // $report->filename('test')
 
         return new Response(array('message' => 'done'), Response::HTTP_CREATED);
     }
@@ -128,5 +118,12 @@ class ReportController extends Controller
         }
 
         return new Response($reports, Response::HTTP_OK);
+    }
+
+    public function getReport(Request $request)
+    {
+        $report = Report::where('git_repository', '=', $request->git_repository)->first();
+
+        return new Response(array('content' => \Storage::get(Treatment::DIR_FILE . '/' . $report->filename)));
     }
 }

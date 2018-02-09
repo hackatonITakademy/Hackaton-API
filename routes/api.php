@@ -29,6 +29,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 // Routes for reports api
 Route::Get('report', 'ReportController@index');
 Route::Post('report', 'ReportController@store');
+Route::Post('getReport', 'ReportController@getReport');
 
 // Route for Currency
 Route::Get('currency', 'CurrencyController@index');
