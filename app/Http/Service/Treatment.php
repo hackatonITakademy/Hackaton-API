@@ -3,6 +3,7 @@
 namespace App\Http\Service;
 
 use Illuminate\Http\Response;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class Treatment
@@ -20,14 +21,15 @@ class Treatment
         \Storage::deleteDirectory(self::DIR_NAME);
         \Storage::makeDirectory(self::DIR_NAME);
 
+        $tryGitExist = new Process('wget ' . $url);
+        $tryGitExist->run();
+
+        if (!$tryGitExist->isSuccessful()) {
+            return new Response('', Response::HTTP_NOT_FOUND);
+        }
+
         $process = new Process('git clone '.$url.' '. $this->getPathStorage());
         $process->run();
-
-
-        if (!$process->isSuccessful()){
-            echo "Envoi mail utilisateur ERROR"; // TODO
-            return new Response(["error" => "Git repository"], Response::HTTP_NOT_FOUND);
-        }
 
         return $this->phpcs();
 

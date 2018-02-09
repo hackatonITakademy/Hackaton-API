@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Http\Service\Treatment;
 use App\Report;
 use Illuminate\Bus\Queueable;
+use Illuminate\Http\Response;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,6 +39,10 @@ class ProcessReport implements ShouldQueue
     {
         $treatment = new Treatment();
         $filename = $treatment->gitClone($this->data['git_repository']);
+
+        if ($filename instanceof Response) {
+            return;
+        }
 
         if ($this->data['action'] == 'create') {
             $report = new Report();
